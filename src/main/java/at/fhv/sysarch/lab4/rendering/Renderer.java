@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import at.fhv.sysarch.lab4.physics.Physics;
+import javafx.geometry.Point2D;
 import javafx.scene.text.Font;
+import javafx.util.Pair;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.Circle;
 import org.dyn4j.geometry.Polygon;
@@ -24,6 +26,7 @@ import javafx.scene.transform.Affine;
 public class Renderer extends AnimationTimer {
     private long lastUpdate;
     private List<Ball> balls;
+    private Pair<Point2D, Point2D> cuePoints;
     private Table table;
 
     private final GraphicsContext gc;
@@ -106,7 +109,11 @@ public class Renderer extends AnimationTimer {
     public void removeBall(Ball b) {
         this.balls.remove(b);
     }
-    
+
+    public void setCuePoints(Pair<Point2D, Point2D> cuePoints) {
+        this.cuePoints = cuePoints;
+    }
+
     public void setTable(Table t) {
         this.table = t;
     }
@@ -234,7 +241,17 @@ public class Renderer extends AnimationTimer {
     }
 
     private void drawCue() {
-        // TODO: draw cue
+        // TODO: draw cue (DONE)
+        if (cuePoints != null) {
+            Point2D p1 = this.cuePoints.getKey();
+            Point2D p2 = this.cuePoints.getValue();
+
+            this.gc.setTransform(this.jfxCoords);
+            this.gc.setStroke(Color.BLACK);
+            this.gc.setLineWidth(3);
+
+            this.gc.strokeLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+        }
     }
 
     private void drawFPS(double dt) {
