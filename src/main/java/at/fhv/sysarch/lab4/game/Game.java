@@ -51,7 +51,7 @@ public class Game {
 
         Ray ray = new Ray(startPoint, direction);
         ArrayList<RaycastResult> results = new ArrayList<>();
-        this.physics.getWorld().raycast(ray, 1.0, false, true, results);
+        this.physics.getWorld().raycast(ray, 0.2, false, true, results);
 
         for (RaycastResult result : results) {
             if (result.getBody().getUserData() instanceof Ball) {
@@ -111,6 +111,7 @@ public class Game {
         }
        
         this.placeBalls(balls);
+        balls.forEach(ball -> physics.getWorld().addBody(ball.getBody()));
 
         Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
         physics.getWorld().addBody(Ball.WHITE.getBody());
