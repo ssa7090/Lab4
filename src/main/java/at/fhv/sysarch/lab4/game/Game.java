@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import at.fhv.sysarch.lab4.physics.BallPocketedListener;
 import at.fhv.sysarch.lab4.physics.Physics;
 import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 
-public class Game {
+public class Game implements BallPocketedListener {
     private final Renderer renderer;
     private final Physics physics;
 
@@ -18,6 +19,8 @@ public class Game {
         this.renderer = renderer;
         this.physics = physics;
         this.initWorld();
+
+        this.physics.setBallPocketedListener(this);
     }
 
     private Point2D mousePressedAt;
@@ -102,5 +105,13 @@ public class Game {
         Table table = new Table();
         physics.getWorld().addBody(table.getBody());
         renderer.setTable(table);
+    }
+
+    @Override
+    public boolean onBallPocketed(Ball b) {
+        this.physics.getWorld().removeBody(b.getBody());
+        this.renderer.removeBall(b);
+
+        return true;
     }
 }

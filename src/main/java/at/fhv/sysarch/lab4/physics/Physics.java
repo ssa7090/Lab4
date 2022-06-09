@@ -1,10 +1,8 @@
 package at.fhv.sysarch.lab4.physics;
 
 import at.fhv.sysarch.lab4.game.Ball;
-import org.dyn4j.dynamics.RaycastResult;
-import org.dyn4j.dynamics.Step;
-import org.dyn4j.dynamics.StepListener;
-import org.dyn4j.dynamics.World;
+import at.fhv.sysarch.lab4.game.Table;
+import org.dyn4j.dynamics.*;
 import org.dyn4j.dynamics.contact.ContactListener;
 import org.dyn4j.dynamics.contact.ContactPoint;
 import org.dyn4j.dynamics.contact.PersistedContactPoint;
@@ -14,15 +12,21 @@ import org.dyn4j.geometry.Vector2;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 public class Physics implements ContactListener, StepListener {
 
     private World world;
+    private BallPocketedListener ballPocketedListener;
 
     public Physics() {
         this.world = new World();
         this.world.setGravity(World.ZERO_GRAVITY);
         this.world.addListener(this);
+    }
+
+    public void setBallPocketedListener(BallPocketedListener ballPocketedListener) {
+        this.ballPocketedListener = ballPocketedListener;
     }
 
     public World getWorld() {
@@ -56,7 +60,7 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public boolean begin(ContactPoint point) {
-        System.out.println("Contact");
+        System.out.println("Initial contact");
         return true;
     }
 
@@ -67,6 +71,27 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public boolean persist(PersistedContactPoint point) {
+        System.out.println("Persistent contact");
+
+        if (point.isSensor()) {
+            Object contactObj1 = Objects.requireNonNullElse(point.getBody1().getUserData(), point.getFixture1().getUserData());
+            Object contactObj2 = Objects.requireNonNullElse(point.getBody2().getUserData(), point.getFixture2().getUserData());
+
+            Ball ball = null;
+            if (contactObj1 instanceof Ball && contactObj2.equals(Table.TablePart.POCKET)) {
+                ball = (Ball) contactObj1;
+            } else if (contactObj2 instanceof Ball && contactObj1.equals(Table.TablePart.POCKET)) {
+                ball = (Ball) contactObj2;
+            }
+
+            if (ball != null && point.getDepth() >= 0.08) {
+                System.out.println("Ball pocketed");
+                if (this.ballPocketedListener != null) {
+                    this.ballPocketedListener.onBallPocketed(ball);
+                }
+            }
+        }
+
         return true;
     }
 
