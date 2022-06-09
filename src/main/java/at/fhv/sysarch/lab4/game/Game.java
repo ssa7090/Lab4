@@ -3,6 +3,7 @@ package at.fhv.sysarch.lab4.game;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import at.fhv.sysarch.lab4.physics.*;
 import at.fhv.sysarch.lab4.rendering.FrameListener;
@@ -10,6 +11,7 @@ import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
+import org.dyn4j.geometry.Vector2;
 
 public class Game implements FrameListener, BallStrikeListener, BallsCollisionListener, BallPocketedListener, ObjectsRestListener {
     private final Renderer renderer;
@@ -92,29 +94,52 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
         }
     }
 
-    private void initWorld() {
+    private List<Ball> remainingGameBalls = new ArrayList<>();
+
+    private List<Ball> getAllGameBalls() {
         List<Ball> balls = new ArrayList<>();
-        
+
         for (Ball b : Ball.values()) {
             if (b == Ball.WHITE)
                 continue;
 
             balls.add(b);
         }
-       
-        this.placeBalls(balls);
-        balls.forEach(ball -> physics.getWorld().addBody(ball.getBody()));
 
-        Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
-        physics.getWorld().addBody(Ball.WHITE.getBody());
-        renderer.addBall(Ball.WHITE);
+        return balls;
+    }
+
+    private List<Ball> getPocketedGameBalls() {
+        return getAllGameBalls().stream()
+                .filter(ball -> !remainingGameBalls.contains(ball))
+                .collect(Collectors.toList());
+    }
+
+    private void initWorld() {
+        remainingGameBalls = getAllGameBalls();
+       
+        this.placeBalls(remainingGameBalls);
+        remainingGameBalls.forEach(ball -> physics.getWorld().addBody(ball.getBody()));
+
+        placeWhiteBall();
         
         Table table = new Table();
         physics.getWorld().addBody(table.getBody());
         renderer.setTable(table);
-        this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn");
+        this.renderer.setStrikeMessage("Next strike: Player "+(player1Turn ? 1 : 2));
     }
 
+    private boolean whiteBallPocketed = true;
+
+    private void placeWhiteBall() {
+        if (whiteBallPocketed) {
+            Ball.WHITE.getBody().setLinearVelocity(new Vector2(0,0));
+            Ball.WHITE.setPosition(Table.Constants.WIDTH * 0.25, 0);
+            physics.getWorld().addBody(Ball.WHITE.getBody());
+            renderer.addBall(Ball.WHITE);
+            whiteBallPocketed = false;
+        }
+    }
 
     @Override
     public void onFrame(double dt) {
@@ -140,23 +165,23 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
     }
 
     @Override
-    public boolean onBallPocketed(Ball b) {
+    public void onBallPocketed(Ball b) {
         this.physics.getWorld().removeBody(b.getBody());
         this.renderer.removeBall(b);
 
         if (foul) {
-            return true;
+            return;
         }
 
         if (b.isWhite()) {
             foul("White ball pocketed");
+            whiteBallPocketed = true;
 
         } else {
             score++;
             this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn, " +score + " balls pocketed");
+            remainingGameBalls.remove(b);
         }
-
-        return true;
     }
 
     private void foul(String message) {
@@ -191,6 +216,14 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
             } else {
                 this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn, " +score + " balls pocketed");
             }
+        }
+
+        if (whiteBallPocketed) {
+            placeWhiteBall();
+        }
+
+        if (remainingGameBalls.size() == 1) {
+            placeBalls(getPocketedGameBalls());
         }
 
         if (this.player1Turn) {
