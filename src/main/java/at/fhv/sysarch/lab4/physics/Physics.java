@@ -13,11 +13,16 @@ import org.dyn4j.geometry.Vector2;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Physics implements ContactListener, StepListener {
 
     private World world;
+
+    private BallStrikeListener ballStrikeListener;
+    private BallsCollisionListener ballsCollisionListener;
     private BallPocketedListener ballPocketedListener;
+    private ObjectsRestListener objectsRestListener;
 
     public Physics() {
         this.world = new World();
@@ -25,8 +30,20 @@ public class Physics implements ContactListener, StepListener {
         this.world.addListener(this);
     }
 
+    public void setBallStrikeListener(BallStrikeListener ballStrikeListener) {
+        this.ballStrikeListener = ballStrikeListener;
+    }
+
+    public void setBallsCollisionListener(BallsCollisionListener ballsCollisionListener) {
+        this.ballsCollisionListener = ballsCollisionListener;
+    }
+
     public void setBallPocketedListener(BallPocketedListener ballPocketedListener) {
         this.ballPocketedListener = ballPocketedListener;
+    }
+
+    public void setObjectsRestListener(ObjectsRestListener objectsRestListener) {
+        this.objectsRestListener = objectsRestListener;
     }
 
     public World getWorld() {
@@ -48,9 +65,31 @@ public class Physics implements ContactListener, StepListener {
 
     }
 
+    private boolean objectsRested = true;
+
     @Override
     public void end(Step step, World world) {
+        AtomicInteger activeBodies = new AtomicInteger();
+        world.getBodies().stream()
+                .forEach(body -> {
+                    if (body.getLinearVelocity().getMagnitude() != 0) {
+                        activeBodies.getAndIncrement();
+                    }
+                });
 
+        if (activeBodies.get() != 0) {
+            // animation active
+            if (objectsRested) {
+                this.objectsRestListener.onEndAllObjectsRest();
+                objectsRested = false;
+            }
+        } else {
+            // animation inactive
+            if (!objectsRested) {
+                this.objectsRestListener.onStartAllObjectsRest();
+                objectsRested = true;
+            }
+        }
     }
 
     @Override
@@ -60,7 +99,15 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public boolean begin(ContactPoint point) {
-        System.out.println("Initial contact");
+        System.out.println("Contact");
+
+        Object contactObj1 = point.getBody1().getUserData();
+        Object contactObj2 = point.getBody2().getUserData();
+
+        if (contactObj1 instanceof Ball && contactObj2 instanceof Ball) {
+            this.ballsCollisionListener.onBallsCollide((Ball) contactObj1, (Ball) contactObj2);
+        }
+
         return true;
     }
 
@@ -71,8 +118,6 @@ public class Physics implements ContactListener, StepListener {
 
     @Override
     public boolean persist(PersistedContactPoint point) {
-        System.out.println("Persistent contact");
-
         if (point.isSensor()) {
             Object contactObj1 = Objects.requireNonNullElse(point.getBody1().getUserData(), point.getFixture1().getUserData());
             Object contactObj2 = Objects.requireNonNullElse(point.getBody2().getUserData(), point.getFixture2().getUserData());
@@ -121,6 +166,7 @@ public class Physics implements ContactListener, StepListener {
             if (result.getBody().getUserData() instanceof Ball) {
                 System.out.println("A ball has been hit");
                 result.getBody().applyForce(directedForce.multiply(400));
+                this.ballStrikeListener.onBallStrike((Ball) result.getBody().getUserData());
                 return;
             }
         }

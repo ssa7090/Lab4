@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import at.fhv.sysarch.lab4.physics.BallPocketedListener;
-import at.fhv.sysarch.lab4.physics.Physics;
+import at.fhv.sysarch.lab4.physics.*;
 import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 
-public class Game implements BallPocketedListener {
+public class Game implements BallStrikeListener, BallsCollisionListener, BallPocketedListener, ObjectsRestListener {
     private final Renderer renderer;
     private final Physics physics;
 
@@ -20,7 +19,10 @@ public class Game implements BallPocketedListener {
         this.physics = physics;
         this.initWorld();
 
+        this.physics.setBallStrikeListener(this);
         this.physics.setBallPocketedListener(this);
+        this.physics.setObjectsRestListener(this);
+        this.physics.setBallsCollisionListener(this);
     }
 
     private Point2D mousePressedAt;
@@ -108,10 +110,40 @@ public class Game implements BallPocketedListener {
     }
 
     @Override
+    public void onBallStrike(Ball b) {
+        if (!b.isWhite()) {
+            foul("Non-white ball has been stricken");
+        }
+    }
+
+    @Override
     public boolean onBallPocketed(Ball b) {
+        if (b.isWhite()) {
+            foul("White ball pocketed");
+        }
+
         this.physics.getWorld().removeBody(b.getBody());
         this.renderer.removeBall(b);
 
         return true;
+    }
+
+    private void foul(String message) {
+        this.renderer.setFoulMessage(message);
+    }
+
+    @Override
+    public void onBallsCollide(Ball b1, Ball b2) {
+        System.out.println("Collision of balls");
+    }
+
+    @Override
+    public void onEndAllObjectsRest() {
+        System.out.println("Simulation step started");
+    }
+
+    @Override
+    public void onStartAllObjectsRest() {
+        System.out.println("Simulation step ended");
     }
 }
