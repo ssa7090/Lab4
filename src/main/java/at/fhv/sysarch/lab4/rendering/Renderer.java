@@ -144,12 +144,24 @@ public class Renderer extends AnimationTimer {
         return pY;
     }
 
+    private static final double FOUL_MSG_MAX_DISPLAY_TIME = 5;
+    private double foulMessageDisplayTime = 0;
+
     @Override
     public void handle(long now) {
         double dt = (double) (now - lastUpdate) / 1000_000_000.0;
 
         this.physics.getWorld().update(dt);
         this.frameListener.ifPresent(l -> l.onFrame(dt));
+
+        if (this.foulMessage != null) {
+            if (this.foulMessageDisplayTime >= FOUL_MSG_MAX_DISPLAY_TIME) {
+                this.foulMessage = null;
+                this.foulMessageDisplayTime = 0;
+            }
+
+            this.foulMessageDisplayTime += dt;
+        }
 
         this.clearWithColorBackground();
         this.drawTable();
