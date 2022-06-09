@@ -9,9 +9,6 @@ import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
-import org.dyn4j.dynamics.RaycastResult;
-import org.dyn4j.geometry.Ray;
-import org.dyn4j.geometry.Vector2;
 
 public class Game {
     private final Renderer renderer;
@@ -33,9 +30,7 @@ public class Game {
     }
 
     public void onMouseReleased(MouseEvent e) {
-        this.renderer.setCuePoints(null);
-
-        // start point
+        // press point
         double xStart = this.mousePressedAt.getX();
         double yStart = this.mousePressedAt.getY();
         double pXStart = this.renderer.screenToPhysicsX(xStart);
@@ -47,14 +42,13 @@ public class Game {
         double pEndX = this.renderer.screenToPhysicsX(endX);
         double pEndY = this.renderer.screenToPhysicsY(endY);
 
+        this.renderer.setCuePoints(null);
         this.physics.strikeBall(pXStart, pYStart, pEndX, pEndY);
     }
 
     public void onMouseDragged(MouseEvent e) {
         double x = e.getX();
         double y = e.getY();
-        double pX = renderer.screenToPhysicsX(x);
-        double pY = renderer.screenToPhysicsY(y);
 
         this.renderer.setCuePoints(new Pair<>(this.mousePressedAt, new Point2D(x, y)));
     }
