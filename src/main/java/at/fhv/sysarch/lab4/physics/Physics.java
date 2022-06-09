@@ -13,6 +13,7 @@ import org.dyn4j.geometry.Ray;
 import org.dyn4j.geometry.Vector2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Physics implements ContactListener, StepListener {
 
@@ -82,18 +83,23 @@ public class Physics implements ContactListener, StepListener {
     public void strikeBall(double xCueStart, double yCueStart, double xCueEnd, double yCueEnd) {
         Vector2 startPoint = new Vector2(xCueStart, yCueStart);
         Vector2 endPoint = new Vector2(xCueEnd, yCueEnd);
-        Vector2 directedForce = startPoint.difference(endPoint);
+        Vector2 directedForce = startPoint.difference(endPoint);;
 
         Ray ray = new Ray(startPoint, directedForce);
         ArrayList<RaycastResult> results = new ArrayList<>();
-        this.world.raycast(ray, 0.2, false, true, results);
+        this.world.raycast(ray, 1.0, false, true, results);
+        Collections.sort(results);
+
+        System.out.println("Striking ball");
 
         for (RaycastResult result : results) {
             if (result.getBody().getUserData() instanceof Ball) {
-                System.out.println("We hit a ball");
+                System.out.println("A ball has been hit");
                 result.getBody().applyForce(directedForce.multiply(400));
-                break;
+                return;
             }
         }
+
+        System.out.println("No ball has been hit");
     }
 }
