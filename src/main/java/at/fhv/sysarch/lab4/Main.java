@@ -31,7 +31,7 @@ public class Main extends Application {
 
         c.setOnMousePressed(game::onMousePressed);
         c.setOnMouseReleased(game::onMouseReleased);
-        c.setOnMouseDragged(game::setOnMouseDragged);
+        c.setOnMouseDragged(game::onMouseDragged);
 
         root.getChildren().add(c);
         stage.setScene(s);

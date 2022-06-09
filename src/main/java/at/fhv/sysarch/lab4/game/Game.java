@@ -50,7 +50,7 @@ public class Game {
         this.physics.strikeBall(pXStart, pYStart, pEndX, pEndY);
     }
 
-    public void setOnMouseDragged(MouseEvent e) {
+    public void onMouseDragged(MouseEvent e) {
         double x = e.getX();
         double y = e.getY();
         double pX = renderer.screenToPhysicsX(x);
