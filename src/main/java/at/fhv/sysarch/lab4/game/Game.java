@@ -40,26 +40,14 @@ public class Game {
         double yStart = this.mousePressedAt.getY();
         double pXStart = this.renderer.screenToPhysicsX(xStart);
         double pYStart = this.renderer.screenToPhysicsY(yStart);
-        Vector2 startPoint = new Vector2(pXStart, pYStart);
 
         // release point
         double endX = e.getX();
         double endY = e.getY();
         double pEndX = this.renderer.screenToPhysicsX(endX);
         double pEndY = this.renderer.screenToPhysicsY(endY);
-        Vector2 direction = startPoint.difference(pEndX, pEndY);
 
-        Ray ray = new Ray(startPoint, direction);
-        ArrayList<RaycastResult> results = new ArrayList<>();
-        this.physics.getWorld().raycast(ray, 0.2, false, true, results);
-
-        for (RaycastResult result : results) {
-            if (result.getBody().getUserData() instanceof Ball) {
-                System.out.println("We hit a ball");
-                result.getBody().applyForce(direction.multiply(400));
-                break;
-            }
-        }
+        this.physics.strikeBall(pXStart, pYStart, pEndX, pEndY);
     }
 
     public void setOnMouseDragged(MouseEvent e) {
