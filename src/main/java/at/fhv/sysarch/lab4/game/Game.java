@@ -112,7 +112,7 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
         Table table = new Table();
         physics.getWorld().addBody(table.getBody());
         renderer.setTable(table);
-        this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn");
+        this.renderer.setStrikeMessage("Next strike: Player "+(player1Turn ? 1 : 2));
     }
 
 
