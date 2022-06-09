@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Physics implements ContactListener, StepListener {
 
+    private static double WORLD_STEP_FREQUENCY_MOD_FACTOR = 1.5;
+
     private World world;
 
     private BallStrikeListener ballStrikeListener;
@@ -26,6 +28,11 @@ public class Physics implements ContactListener, StepListener {
 
     public Physics() {
         this.world = new World();
+
+        Settings worldSettings = new Settings();
+        worldSettings.setStepFrequency(worldSettings.getStepFrequency() * WORLD_STEP_FREQUENCY_MOD_FACTOR);
+        this.world.setSettings(worldSettings);
+
         this.world.setGravity(World.ZERO_GRAVITY);
         this.world.addListener(this);
     }
