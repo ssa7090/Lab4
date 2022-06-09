@@ -9,9 +9,6 @@ import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
-import org.dyn4j.dynamics.RaycastResult;
-import org.dyn4j.geometry.Ray;
-import org.dyn4j.geometry.Vector2;
 
 public class Game {
     private final Renderer renderer;
@@ -33,40 +30,25 @@ public class Game {
     }
 
     public void onMouseReleased(MouseEvent e) {
-        this.renderer.setCuePoints(null);
-
-        // start point
+        // press point
         double xStart = this.mousePressedAt.getX();
         double yStart = this.mousePressedAt.getY();
         double pXStart = this.renderer.screenToPhysicsX(xStart);
         double pYStart = this.renderer.screenToPhysicsY(yStart);
-        Vector2 startPoint = new Vector2(pXStart, pYStart);
 
         // release point
         double endX = e.getX();
         double endY = e.getY();
         double pEndX = this.renderer.screenToPhysicsX(endX);
         double pEndY = this.renderer.screenToPhysicsY(endY);
-        Vector2 direction = startPoint.difference(pEndX, pEndY);
 
-        Ray ray = new Ray(startPoint, direction);
-        ArrayList<RaycastResult> results = new ArrayList<>();
-        this.physics.getWorld().raycast(ray, 0.2, false, true, results);
-
-        for (RaycastResult result : results) {
-            if (result.getBody().getUserData() instanceof Ball) {
-                System.out.println("We hit a ball");
-                result.getBody().applyForce(direction.multiply(400));
-                break;
-            }
-        }
+        this.renderer.setCuePoints(null);
+        this.physics.strikeBall(pXStart, pYStart, pEndX, pEndY);
     }
 
-    public void setOnMouseDragged(MouseEvent e) {
+    public void onMouseDragged(MouseEvent e) {
         double x = e.getX();
         double y = e.getY();
-        double pX = renderer.screenToPhysicsX(x);
-        double pY = renderer.screenToPhysicsY(y);
 
         this.renderer.setCuePoints(new Pair<>(this.mousePressedAt, new Point2D(x, y)));
     }
