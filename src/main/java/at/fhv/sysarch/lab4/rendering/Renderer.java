@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import at.fhv.sysarch.lab4.physics.Physics;
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.util.Pair;
 import org.dyn4j.dynamics.BodyFixture;
@@ -309,7 +310,9 @@ public class Renderer extends AnimationTimer {
         this.gc.fillText(this.strikeMessage, 0, 0);
 
         this.gc.setTransform(foulMsgTrans);
+        this.gc.setFill(Color.RED);
         this.gc.fillText(this.foulMessage, 0, 0);
+        this.gc.setFill(Color.BLACK);
 
         this.gc.setTransform(player1ScoreTrans);
         this.gc.fillText(String.format("Player 1 score: %d", this.player1Score), 0, 0);

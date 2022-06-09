@@ -48,7 +48,10 @@ public class Game implements BallStrikeListener, BallsCollisionListener, BallPoc
         double pEndY = this.renderer.screenToPhysicsY(endY);
 
         this.renderer.setCuePoints(null);
-        this.physics.strikeBall(pXStart, pYStart, pEndX, pEndY);
+
+        if (!moveActive) {
+            this.physics.strikeBall(pXStart, pYStart, pEndX, pEndY);
+        }
     }
 
     public void onMouseDragged(MouseEvent e) {
@@ -109,8 +112,19 @@ public class Game implements BallStrikeListener, BallsCollisionListener, BallPoc
         renderer.setTable(table);
     }
 
+    private int player1Score = 0;
+    private int player2Score = 0;
+    private boolean player1Turn = true;
+    private boolean moveActive = false;
+    private boolean foul = false;
+    private int score = 0;
+
     @Override
     public void onBallStrike(Ball b) {
+        if (foul) {
+            return;
+        }
+
         if (!b.isWhite()) {
             foul("Non-white ball has been stricken");
         }
@@ -118,18 +132,26 @@ public class Game implements BallStrikeListener, BallsCollisionListener, BallPoc
 
     @Override
     public boolean onBallPocketed(Ball b) {
-        if (b.isWhite()) {
-            foul("White ball pocketed");
-        }
-
         this.physics.getWorld().removeBody(b.getBody());
         this.renderer.removeBall(b);
+
+        if (foul) {
+            return true;
+        }
+
+        if (b.isWhite()) {
+            foul("White ball pocketed");
+
+        } else {
+            score++;
+        }
 
         return true;
     }
 
     private void foul(String message) {
         this.renderer.setFoulMessage(message);
+        foul = true;
     }
 
     @Override
@@ -140,10 +162,32 @@ public class Game implements BallStrikeListener, BallsCollisionListener, BallPoc
     @Override
     public void onEndAllObjectsRest() {
         System.out.println("Simulation step started");
+        moveActive = true;
     }
 
     @Override
     public void onStartAllObjectsRest() {
         System.out.println("Simulation step ended");
+        moveActive = false;
+
+        if (foul) {
+            score = -1;
+            player1Turn = !player1Turn;
+        } else {
+            if (score == 0) {
+                player1Turn = !player1Turn;
+            }
+        }
+
+        if (this.player1Turn) {
+            this.player1Score += score;
+            this.renderer.setPlayer1Score(player1Score);
+        } else {
+            this.player2Score += score;
+            this.renderer.setPlayer2Score(player2Score);
+        }
+
+        foul = false;
+        score = 0;
     }
 }
