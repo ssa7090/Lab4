@@ -284,11 +284,11 @@ public class Renderer extends AnimationTimer {
         foulMsgTrans.appendTranslation(this.centerX - 250,  this.centerY + 300);
         foulMsgTrans.appendScale(2, 2);
 
-        player1ScoreTrans.appendTranslation(10, this.sceneHeight - 100);
-        player1ScoreTrans.appendScale(5, 5);
+        player1ScoreTrans.appendTranslation(10, this.sceneHeight - 50);
+        player1ScoreTrans.appendScale(3, 3);
         
-        player2ScoreTrans.appendTranslation(this.centerX + 300, this.sceneHeight - 100);
-        player2ScoreTrans.appendScale(5, 5);
+        player2ScoreTrans.appendTranslation(this.centerX + 300, this.sceneHeight - 50);
+        player2ScoreTrans.appendScale(3, 3);
 
         this.gc.setTransform(actionMsgTrans);
         this.gc.fillText(this.actionMessage, 0, 0);

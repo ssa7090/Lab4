@@ -11,8 +11,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    private final static int SCENE_WIDTH  = 1920;
-    private final static int SCENE_HEIGHT = 1080;
+    private final static int SCENE_WIDTH  = 1280;
+    private final static int SCENE_HEIGHT = 768;
 
     @Override
     public void start(Stage stage) {
