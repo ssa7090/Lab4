@@ -87,7 +87,7 @@ public class Physics implements ContactListener, StepListener {
 
         Ray ray = new Ray(startPoint, directedForce);
         ArrayList<RaycastResult> results = new ArrayList<>();
-        this.world.raycast(ray, 1.0, false, true, results);
+        this.world.raycast(ray, 0.3, false, true, results);
         Collections.sort(results);
 
         System.out.println("Striking ball");
