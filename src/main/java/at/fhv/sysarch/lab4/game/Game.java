@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 import at.fhv.sysarch.lab4.physics.*;
+import at.fhv.sysarch.lab4.rendering.FrameListener;
 import at.fhv.sysarch.lab4.rendering.Renderer;
 import javafx.geometry.Point2D;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 
-public class Game implements BallStrikeListener, BallsCollisionListener, BallPocketedListener, ObjectsRestListener {
+public class Game implements FrameListener, BallStrikeListener, BallsCollisionListener, BallPocketedListener, ObjectsRestListener {
     private final Renderer renderer;
     private final Physics physics;
 
@@ -19,6 +20,7 @@ public class Game implements BallStrikeListener, BallsCollisionListener, BallPoc
         this.physics = physics;
         this.initWorld();
 
+        this.renderer.setFrameListener(this);
         this.physics.setBallStrikeListener(this);
         this.physics.setBallPocketedListener(this);
         this.physics.setObjectsRestListener(this);
@@ -110,6 +112,12 @@ public class Game implements BallStrikeListener, BallsCollisionListener, BallPoc
         Table table = new Table();
         physics.getWorld().addBody(table.getBody());
         renderer.setTable(table);
+    }
+
+
+    @Override
+    public void onFrame(double dt) {
+        this.physics.getWorld().update(dt);
     }
 
     private int player1Score = 0;

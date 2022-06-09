@@ -152,7 +152,6 @@ public class Renderer extends AnimationTimer {
     public void handle(long now) {
         double dt = (double) (now - lastUpdate) / 1000_000_000.0;
 
-        this.physics.getWorld().update(dt);
         this.frameListener.ifPresent(l -> l.onFrame(dt));
 
         if (this.foulMessage != null) {
