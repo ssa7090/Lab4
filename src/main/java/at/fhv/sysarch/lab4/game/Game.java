@@ -112,6 +112,7 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
         Table table = new Table();
         physics.getWorld().addBody(table.getBody());
         renderer.setTable(table);
+        this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn");
     }
 
 
@@ -152,6 +153,7 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
 
         } else {
             score++;
+            this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn, " +score + " balls pocketed");
         }
 
         return true;
@@ -180,10 +182,14 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
 
         if (foul) {
             score = -1;
-            player1Turn = !player1Turn;
+            this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ " committed a foul, switching players.");
+            togglePlayerTurn();
         } else {
             if (score == 0) {
-                player1Turn = !player1Turn;
+                this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ " haven't pocketed a ball, switching players.");
+                togglePlayerTurn();
+            } else {
+                this.renderer.setActionMessage("Player " +(player1Turn ? 1 : 2)+ "'s turn, " +score + " balls pocketed");
             }
         }
 
@@ -197,5 +203,11 @@ public class Game implements FrameListener, BallStrikeListener, BallsCollisionLi
 
         foul = false;
         score = 0;
+    }
+
+    private void togglePlayerTurn() {
+        player1Turn = !player1Turn;
+
+        this.renderer.setStrikeMessage("Next strike: Player " + (player1Turn ? 1 : 2));
     }
 }
